@@ -1,0 +1,117 @@
+<%- include("header") -%>
+<%- include("navbar") -%>
+<section name="account-table" class="account-table">
+  <div class="d-flex justify-content-center loading-container" id="loading-container">
+    <div class="spinner-border" id="loading" role="status">
+      <span class="sr-only"></span>
+    </div>
+  </div>
+  <div class="table-container">
+    <table class="table table-striped table-sm">
+      <thead>
+        <tr id="table-title">
+          <th scope="col">單位</td>
+          <th scope="col">名稱</td>
+          <th scope="col">使用者帳號</td>
+          <th scope="col">剩餘點數</td>
+          <th scope="col">用戶計數</td>
+          <th scope="col">編輯</td>
+        </tr>
+      </thead>
+      <tbody>
+      <% for (let i = 0; i < accounts.length; i++) { %>
+          <tr>
+            <% if(accounts[i].departmentID === 1) { %>
+              <td>台科大</td>
+            <% } %>
+            <% if(accounts[i].departmentID === 2) { %>
+              <td>台大</td>
+            <% } %>
+            <% if(accounts[i].departmentID === 3) { %>
+              <td>師大</td>
+            <% } %>
+            <td><%= accounts[i].name %></td>
+            <td><%= accounts[i].studentID %></td>
+            <td><%= accounts[i].balance %></td>
+            <td><%= accounts[i].page + "頁/" + accounts[i].sheet + "張/" + accounts[i].task + "任務" %> </td>
+            <td><input class="btn btn-secondary btn-sm" data-bs-toggle="button" autocomplete="off" type="button" name="edit" value="編輯" onclick="Edit('<%= accounts[i].userID %>');" /></td>
+          </tr>
+      <% } %>
+    </tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+function Edit(id){
+  window.location.href = "/admin/userEdit?id=" + id;
+}
+
+window.addEventListener('load', function() {
+  var loading = document.getElementById('loading');
+  loading.style.display = 'none';
+});
+
+document.addEventListener("readystatechange", (event) => {
+  if (document.readyState == "complete"){
+    hideLoading();
+  }
+});
+
+// 在需要顯示 `loading` 狀態時顯示 `loading` 元素
+function showLoading() {
+  var loading = document.getElementById('loading');
+  loading.style.display = 'flex';
+}
+
+// 在載入完成後隱藏 `loading` 元素
+function hideLoading() {
+  var loading = document.getElementById('loading');
+  var loadingColor = document.getElementById('loading-container');
+  loading.style.display = 'none';
+  loadingColor.classList.remove('loading-container');
+  // loadingColor.style.backgroundColor = 'rgba(255, 255, 255, 0)';
+}
+function setTableContainerHeight() {
+    const windowHeight = window.innerHeight;
+    const tableContainer = document.querySelector('.table-container');
+    const tableContainerTop = tableContainer.getBoundingClientRect().top;
+    const maxHeight = windowHeight - tableContainerTop - 20; // 20px为边距
+
+    tableContainer.style.maxHeight = `${maxHeight}px`;
+  }
+
+  window.addEventListener('resize', setTableContainerHeight);
+  window.addEventListener('load', setTableContainerHeight);
+</script>
+<style>
+.account-table{
+  padding-right: 50px;
+}
+table{
+  border: 1px solid black;
+}
+#table-title td{
+  text-align: center;
+  border-bottom: 1px solid black;
+}
+.loading-container{
+  align-items: center;
+  position: absolute;
+  width: 80vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+.table-container {
+  margin: 20px;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+thead {
+  color: #fff;
+  position: sticky;
+  top: -0.5px; /* 将thead固定在页面顶部 */
+  background-color: #363d43; /* 可选：添加背景色以避免内容遮挡 */
+}
+</style>
+<%- include("footer") -%>

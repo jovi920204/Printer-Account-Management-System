@@ -1,0 +1,227 @@
+<%- include("header") -%>
+<%- include("navbar") -%>
+<!-- 載入PDF.js核心腳本 -->
+<script src="../pdfjs-3.9.179-dist/build/pdf.js"></script>
+<!-- 載入jQuery核心腳本 -->
+<script src="../jquery-3.7.0.min.js"></script>
+<section id="print-setting-page">
+    <form id="print-form" enctype="multipart/form-data">
+        <h3>檔案上傳與預覽</h3>
+        <label for="balance" id="balance-display">帳戶餘額：<%= user.balance %> 點</label>
+        <div class="input-group  mt-3 mb-3">
+            <input class="form-control" name="file" type="file" id="fileInput" accept=".pdf, .png, .jpeg, .jpg, .docx" aria-label="Upload">
+            <button type="button" class="btn btn-secondary btn-sm" for="fileInput" id="cancel-button">取消</button>
+        </div>
+        <div id="pdf-panel">
+            <div>
+                <button class="btn btn-outline-secondary btn-sm" id="prev">上一頁</button>
+                <button class="btn btn-outline-secondary btn-sm" id="next">下一頁</button>
+                    
+                <span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
+            </div>
+            <div id="docx-container" class="overflowing-div"></div>
+            <canvas id="the-canvas" hidden></canvas>
+        </div>
+        <img id="img" hidden alt="">
+        <hr>
+        <div id="print-setting-panel">
+            <h3>列印設定</h3>
+            <div class="mb-3 row">
+                <label class="col-sm-6 col-form-label">選擇印表機</label>
+                <div class="col-sm-6">
+                    <select name="printer-name" class="form-select">
+                    <% for(let i = 0; i<printer.length; i++) { %>
+                        <option value="<%= i %>"><%= printer[i] %></option>
+                    <% } %>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                    <label class="col-sm-6">檔案頁數(無法更動)</label>
+                    <div class="col-sm-6">
+                    <input class="form-control" name="pages" type="number" id="pages" value="" hidden>
+                    <label for="pages" id="pages-label"></label>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-6">顏色</label>
+                <div class="col-sm-6">
+                    <select id="color" name="color" class="form-select" onchange="updateCost();">
+                        <option value="0">黑白</option>
+                        <option value="1">彩色</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-6">紙張大小</label>
+                <div class="col-sm-6">
+                    <select id="page-size" name="page-size" class="form-select" onchange="updateCost();">
+                        <option value="0">A4</option>
+                        <option value="1">A3</option>
+                        </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-6">單面\雙面</label>
+                <div class="col-sm-6">
+                    <select id="duplex" name="duplex" class="form-select" onchange="updateCost();">
+                        <option value="0">單面列印</option>
+                        <option value="1">雙面(長邊列印)</option>
+                        <option value="2">雙面(短邊列印)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-6">列印份數</label>
+                <div class="col-sm-6">
+                    <input class="form-control" type="number" name="copies" id="copies" value="1" min="1" onchange="updateCost();">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-6">消耗點數</label>
+                <div class="col-sm-6">
+                    <input class="form-control" id="cost" type="text" value="" hidden>
+                    <label id="cost-display">0</label> 
+                </div>
+            </div>
+        </div>
+        <hr>
+        <button type="submit" id="print-button" class="btn btn-secondary btn-sm">列印</button>
+    </form>
+    <!-- add Loading animation above the hole page -->
+    <div id="loading-container" style="display: none;">
+        <div id="loading" class="spinner-border text-primary" role="status" >
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</section>
+
+<script src="../jszip/dist/jszip.min.js"></script>
+<script src="../docx-preview/dist/docx-preview.min.js"></script>
+<script src="../javascript/runpdf.js"></script>
+<script>
+    var printForm = document.getElementById("print-form");
+    var submitButton = document.getElementById("print-button");
+    var studentID = '<%= user.studentID %>';
+    fileInput.addEventListener('change', function() {
+        updateCost();
+    });
+
+    async function updateCost(){
+        const priceTable = <%- priceTable %>;
+        var balance = <%= user.balance %>;
+        var cost = 0;
+        var pagesNumber = parseInt(document.getElementById('page_count').textContent);
+        let i = 0;
+        while (isNaN(pagesNumber)){
+            await timeout(1);
+            pagesNumber = parseInt(document.getElementById('page_count').textContent);
+            i++;
+            if (i > 10){
+                break;
+            }
+        }
+        document.getElementById('pages').value = pagesNumber;
+        // console.log('檔案頁數 = ' + document.getElementById('pages').value);
+        document.getElementById('pages-label').textContent = pagesNumber;
+        var copies = parseInt(document.getElementById('copies').value);
+        var color = parseInt(document.getElementById('color').value); // 0 = black and white, 1 = color
+        var pageSize = parseInt(document.getElementById('page-size').value); // 0 = A4, 1 = A3
+        if (color == 0){
+            if (pageSize == 0) cost = priceTable['黑白']['A4'] * pagesNumber * copies;
+            else cost = priceTable['黑白']['A3'] * pagesNumber * copies;
+        }
+        else {
+            if (pageSize == 0) cost = priceTable['彩色']['A4'] * pagesNumber * copies;
+            else cost = priceTable['彩色']['A3'] * pagesNumber * copies;
+        }
+        document.getElementById('cost-display').textContent = cost;
+        if (cost > balance){
+            document.getElementById('cost-display').style.color = "red";
+            document.getElementById('print-button').disabled = true;
+        }
+        else{
+            document.getElementById('cost-display').style.color = "black";
+            document.getElementById('print-button').disabled = false;
+        }
+    }
+    function timeout(seconds){
+        return new Promise(resolve => setTimeout(resolve, seconds*1000));
+    }
+    
+    printForm.addEventListener('submit', async function(event){
+        var loading = document.getElementById("loading-container");
+        loading.style.display = 'block';
+        event.preventDefault();
+        var formData = new FormData(printForm);
+        formData.append("file", fileInput.files[0], "file.pdf");
+        var settings = {
+        };
+
+        await $.ajax(settings).done(async function (response) 
+        {
+        });
+    });
+   
+</script>
+<style>
+#print-setting-page {
+    padding: 20px;
+}
+
+h3{
+    font-weight: bold;
+}
+#the-canvas, #img{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    border: 1px solid black;
+    max-width: 841px;
+    max-height: calc(841px * 0.7);
+    overflow: auto;
+}
+#docx-container{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: calc(100vw - 800px);
+    height: calc(100vh - 100px);
+    max-width: 841px;
+    height: 95vh;
+    overflow: auto;
+}
+#balance-display{
+    display: block;
+    margin-bottom: 10px;
+}
+#print-setting-page{
+    width: 475px;
+}
+.overflowing-div {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: calc(100vw - 800px);
+    height: calc(100vh - 100px);
+    max-width: 841px;
+    height: 95vh;
+    overflow: auto;
+}
+#loading-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+}
+#loading{
+    position: absolute;
+    top: calc(50% - 2rem);
+    left: calc(50%);
+}
+</style>
+
+<%- include("footer") -%>

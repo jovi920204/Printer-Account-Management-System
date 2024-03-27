@@ -1,0 +1,164 @@
+<%- include("header") -%>
+<%- include("navbar") -%>
+
+<section name="set-user-page" id="set-user-frame">
+    <form action="/admin/setUser" method="post">
+      <h3>基本資訊</h3>
+      <div class="mb-3 border-box">
+        <div class="mb-3 row">
+          <label class="col-sm-6">用戶ID：</label>
+            <div class="col-sm-6">
+              <%= data.userID %><input type="hidden" name="userID" value="<%= data.userID %>">
+            </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-6">單位：</label>
+          <div class="col-sm-3">
+              <select name="departmentID" class="form-select form-select-sm">
+                <option value="1" <% if (data.departmentID===1) { %>selected<% } %>>台科大</option>
+                <option value="2" <% if (data.departmentID===2) { %>selected<% } %>>台大</option>
+                <option value="3" <% if (data.departmentID===3) { %>selected<% } %>>師大</option>
+              </select>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-6">帳戶名稱(顯示名稱)：</label>
+          <div class="col-sm-3">
+            <input id="input-name" name="name" class="form-control form-control-sm" value="<%= data.name %>" required>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-6">帳號：</label>
+          <div class="col-sm-3">
+            <input id="input-studentID" name="studentID" class="form-control form-control-sm" value="<%= data.studentID %>" required>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-6">密碼：</label>
+          <div class="col-sm-3">
+            <input id="input-password" name="password" type="password" class="form-control form-control-sm" value="<%= data.password %>" required>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-6">權限管理</label>
+          <div class="col-sm-3">
+            <select name="permissionID" class="form-select form-select-sm">
+              <option value="1" <% if (data.permissionID===1) { %>selected<% } %>>管理人員權限</option>
+              <option value="2" <% if (data.permissionID===2) { %>selected<% } %>>使用者權限</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <label class="col-sm-6">帳戶餘額：</label>
+          <div class="col-sm-3">
+            <%= data.balance %>
+            <input type="hidden" name="balance" value="<%= data.balance %>">
+          </div>
+        </div>
+      </div>
+      <h3>歷史統計資訊</h3>
+          <div class="mb-3 border-box">
+            <%= data.page %>頁/<%= data.sheet %>張/<%= data.task %>任務
+            <input type="hidden" id="page" name="page" value="<%= data.page %>">
+            <input type="hidden" id="sheet" name="sheet" value="<%= data.sheet %>">
+            <input type="hidden" id="task" name="task" value="<%= data.task %>">
+          </div>
+      <div class="form-button">
+        <button class="btn btn-success" type="submit">儲存</button>
+        <button class="btn btn-secondary" type="reset">取消</button>
+      </div>
+    </form>
+    <form class="delete-form" action="/admin/deleteUser" method="post">
+      <input type="text" name="userId" value="<%= data.userID %>" hidden>
+      <button class="btn btn-outline-danger" id="delete-button" type="delete">刪除帳戶</button>
+    </form>
+    <!-- 以下為 浮出視窗 -->
+    <div id="add-money-frame" hidden>
+      <form id="addMoneyForm">
+      <div class="row">
+        <div class="col-md-6">
+          <label for="">帳戶：<%= data.studentID %></label>
+        </div>
+        <div class="col-md-6">
+          <label for="">目前餘額：<%= data.balance %></label>
+        </div>
+      </div>
+      <div class="row">
+        <label for="inputMoney" class="col-sm-6 col-form-label">增減金額：</label>
+        <div class="col-sm-3">
+          <input id="inputMoney" type="text" class="form-control form-control-sm" value="0">
+        </div>
+        <div class="col-sm-3">
+          <button id="addValueButton" class="btn btn-primary btn-sm" type="button">+300</button>
+        </div>
+      </div>
+        <button id="addMoneyButton" class="btn btn-primary btn-sm" type="submit">加值</button>
+        <button id="cancel" class="btn btn-secondary btn-sm" type="reset">取消</button>
+      </form>
+    </div>
+  </section>
+  <script>
+    let addMoneyActiveButton = document.getElementById("button-add-money");
+    let addMoneyFrame = document.getElementById("add-money-frame");
+    addMoneyActiveButton.addEventListener("click", function(){
+      addMoneyFrame.hidden = false;
+    });
+    let cancel = document.getElementById("cancel");
+    cancel.addEventListener('click', function() {
+      addMoneyFrame.hidden = true;
+    });
+
+    let inputMoney = document.getElementById("inputMoney");
+    let addValueButton = document.getElementById("addValueButton");
+    addValueButton.addEventListener('click', function() {
+      inputMoney.value = parseInt(inputMoney.value) + 300;
+    });
+    let addMoneyForm = document.getElementById("addMoneyForm");
+    addMoneyForm.addEventListener('submit', function() {
+      event.preventDefault();
+      let amount = parseInt(inputMoney.value);
+      if (amount === 0 || isNaN(amount)) {
+        alert("請輸入金額");
+        return;
+      }
+      let data = {
+        userID: "<%= data.userID %>",
+        amount: amount
+      };
+      $.ajax({
+        type: "POST",
+        url: "/api/addMoney",
+        data: data,
+        success: function(res) {
+          console.log(res);
+          if (res.status === "success") {
+            alert("加值成功");
+            location.reload();
+          } else {
+            alert("加值失敗");
+          }
+        }
+      });
+    });
+  </script>
+  <style>
+  #set-user-frame, .border-box{
+    padding: 20px;
+    position: relative;
+  }
+  .border-box{
+    border: 1px solid #ccc;
+    border-radius: 15px;
+  }
+  .delete-form{
+    position: absolute;
+    right: 33px;
+    bottom: 33px;
+  }
+  .form-button{
+    position: absolute;
+    left: 33px;
+    bottom: 33px;
+  }
+  </style>
+<%- include("footer") -%>

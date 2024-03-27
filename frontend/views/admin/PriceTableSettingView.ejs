@@ -1,0 +1,144 @@
+<%- include("header") -%>
+<%- include("navbar") -%>
+<section id="price-table-setting">
+    <h3>計費標準</h3>
+    <h4>列印</h4>
+    <table class="table">
+        <tr>
+            <th></th>
+            <th>紙張尺寸</th>
+            <th>扣除點數(點/張)</th>
+        </tr>
+        <tr>
+            <td rowspan="2">黑白列印</td>
+            <td>A4</td>
+            <td class="price" id="black-A4-value"><%= priceTable['黑白']['A4']%></td>
+        </tr>
+        <tr>
+            <td>A3</td>
+            <td class="price" id="black-A3-value"><%= priceTable['黑白']['A3']%></td>
+        </tr>
+        <tr>
+            <td rowspan="2">彩色列印</td>
+            <td>A4</td>
+            <td class="price" id="color-A4-value"><%= priceTable['彩色']['A4']%></td>
+        </tr>
+        <tr>
+            <td>A3</td>
+            <td class="price" id="color-A3-value"><%= priceTable['彩色']['A3']%></td>
+        </tr>
+    </table>
+    <h4>點數售價</h4>
+    <table class="table">
+        <tr>
+            <th>台幣金額(元)</th>
+            <th>轉換點數(點)</th>
+        </tr>
+        <tr>
+            <td class="price" id="amount"><%= priceTable['金額']%></td>
+            <td class="price" id="point"><%= priceTable['點數']%></td>
+
+        </tr>
+    </table>
+    <div class="btn-div">
+        <button class="btn btn-secondary btn-sm" id="edit">編輯</button>
+        <button class="btn btn-primary btn-sm" id="save">儲存</button>
+    </div>
+</section>
+
+<style>
+    #price-table-setting{
+        padding: 20px;
+    }
+    .table > tbody > tr{
+        text-align: center;
+        vertical-align: middle;
+    }
+    h4{
+        margin: 20px 0;
+        text-align: center;
+    }
+    .table{
+        width: 50%;
+        margin: 0 auto;
+        border-radius: 10px;
+        border: 5px solid #949494;
+    }
+    /* button 靠右 */
+    .btn-div{
+        margin-top: 30px;
+        position: absolute;
+        right: 5%;  
+    }
+    #save{
+        display: none;
+    }
+    .price{
+        margin: 4px 8px;
+        height: 50px;
+    }
+    /* 限制 input 的長寬、並置中*/
+    .price input{
+        width: 100px;
+        text-align: center;
+        margin: 0 auto;
+    }
+</style>
+<script>
+    var btnEdit = document.getElementById('edit');
+    var btnSave = document.getElementById('save');
+    var table = document.getElementsByTagName('table')[0];
+
+    // 當編輯按鈕按下，class="price" 變更為 input
+    btnEdit.addEventListener('click', function(){
+        var price = document.getElementsByClassName('price');
+        for(var i=0; i<price.length; i++){
+            var input = document.createElement('input');
+            input.setAttribute('type', 'text');
+            input.setAttribute('value', price[i].innerHTML);
+            input.setAttribute('class', 'form-control form-control-sm');
+
+            price[i].innerHTML = '';
+            price[i].appendChild(input);
+        }
+        btnEdit.style.display = 'none';
+        btnSave.style.display = 'block';
+    });
+
+    // 當按下儲存按鈕，要除了儲存資料，還要更新頁面上的資料
+    btnSave.addEventListener('click', function(){
+        var price = document.getElementsByClassName('price');
+        var priceTable = {};
+        for(var i=0; i<price.length; i++){
+            var input = price[i].getElementsByTagName('input')[0];
+            priceTable[price[i].id] = input.value;
+            price[i].innerHTML = input.value;
+        }
+        btnEdit.style.display = 'block';
+        btnSave.style.display = 'none';
+        // console.log(priceTable);
+        $.ajax({
+            url: '/api/setPriceTable',
+            type: 'POST',
+            data: {
+                priceTable: {
+                    "金額": priceTable['amount'],
+                    "點數": priceTable['point'],
+                    "黑白":{
+                        "A4": priceTable['black-A4-value'],
+                        "A3": priceTable['black-A3-value']
+                    },
+                    "彩色":{
+                        "A4": priceTable['color-A4-value'],
+                        "A3": priceTable['color-A3-value']
+                    }
+                }
+            },
+            success: function(data){
+                alert('儲存成功');
+                window.location.reload();
+            }
+        });
+    });
+</script>
+<%- include("footer") -%>

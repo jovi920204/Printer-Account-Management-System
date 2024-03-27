@@ -1,0 +1,60 @@
+<%- include("header") -%>
+<%- include("navbar") -%>
+<section id="add-user">
+    <form id="add-user-form" action="" method="post">
+        <h3>新增帳戶資訊</h3>
+        <div class="add-user-block mb-3">
+            <div class="mb-3 row">
+                <label class="col-sm-6">學校單位：</label>
+                <div class="col-sm-3">
+                    <select class="form-select form-select-sm" name="departmentID">
+                        <option value="1">台科大</option>
+                        <option value="2">台大</option>
+                        <option value="3">師大</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-6">帳戶名稱：</label>
+                <div class="col-sm-3">
+                    <input class="form-control form-control-sm" id="input-name" name="name" placeholder="請輸入名字..." required>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-6">帳號：</label>
+                <div class="col-sm-3">
+                    <input class="form-control form-control-sm" id="input-studentID" name="studentID" placeholder="請輸入學號..." required>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-6">密碼：</label>
+                <div class="col-sm-3">
+                    <input class="form-control form-control-sm" id="input-password" type="password" name="password" placeholder="請輸入密碼..." required>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-6">權限設定：</label>
+                <div class="col-sm-3">
+                    <select class="form-select form-select-sm" name="permissionID">
+                        <option value="2">預設權限管理</option>
+                        <option value="1">管理人員權限</option>
+                        <option value="2">使用者權限</option>
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <button class="btn btn-success btn-sm" type="submit">新增</button>
+            <button class="btn btn-secondary btn-sm" type="reset">取消</button>
+        </div>
+    </form>
+</section>
+<style>
+#add-user, .add-user-block{
+    padding: 20px;
+}
+.add-user-block{
+    border: 1px solid #ccc;
+    border-radius: 15px;
+}
+</style>
+<%- include("footer"); -%>

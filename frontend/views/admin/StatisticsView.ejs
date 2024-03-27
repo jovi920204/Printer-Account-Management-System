@@ -1,0 +1,147 @@
+<%- include("header") -%>
+<%- include("navbar") -%>
+<section name="statistics" class="statistics">
+    <form id="dateRangeForm">
+        <label>年分：</label>
+        <select id="year">
+        </select>
+        <br>
+        <label>月份：</label>
+        <select id="month">
+            <option value="01">01</option>
+            <option value="02">02</option>
+            <option value="03">03</option>
+            <option value="04">04</option>
+            <option value="05">05</option>
+            <option value="06">06</option>
+            <option value="07">07</option>
+            <option value="08">08</option>
+            <option value="09">09</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+        </select>
+        <br>
+        <button class="btn btn-secondary btn-sm" type="button" id="searchButton">查詢</button>
+    </form>
+    <br>
+    <div id="statistics-table">
+        <table class="table table-striped table-sm" id="">
+            <tr>
+                <th></th>
+                <th>數量(使用張數)</th>
+                <th>數量(列印頁數)</th>
+                <th>點數</th>
+            </tr>
+            <tr>
+                <td>A4 黑白</td>
+                <td id="a4-black-total-sheets"></td>
+                <td id="a4-black-total-pages"></td>
+                <td id="a4-black-amount"></td>
+            </tr>
+            <tr>
+                <td>A4 彩色</td>
+                <td id="a4-color-total-sheets"></td>
+                <td id="a4-color-total-pages"></td>
+                <td id="a4-color-amount"></td>
+            </tr>
+            <tr>
+                <td>A3 黑白</td>
+                <td id="a3-black-total-sheets"></td>
+                <td id="a3-black-total-pages"></td>
+                <td id="a3-black-amount"></td>
+            </tr>
+            <tr>
+                <td>A3 彩色</td>
+                <td id="a3-color-total-sheets"></td>
+                <td id="a3-color-total-pages"></td>
+                <td id="a3-color-amount"></td>
+            </tr>
+            <tr>
+                <td>總共</td>
+                <td id="total-sheets"></td>
+                <td id="total-pages"></td>
+                <td id="total-amount"></td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <p>註：<br>1. 使用張數：實際消耗的 A3, A4 紙張數量<br>2. 列印頁數：印表機所印刷的頁面數量<br>3. 點數：使用者消耗的點數而非實際金額，請自行計算當前匯率
+        </p>
+    </div>
+</section>
+
+
+<script>
+    var yearSelect = document.getElementById('year');
+
+    var currentYear = new Date().getFullYear();
+
+    for (var i = 2023; i <= currentYear; i++) {
+        var option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        yearSelect.appendChild(option);
+    }
+
+    var searchBtn = document.getElementById('searchButton');
+    console.log(year, month);
+    searchBtn.addEventListener('click', () => {
+        year = yearSelect.value;
+        month = document.getElementById('month').value;
+        console.log(year, month);
+        console.log('search button clicked');
+        fetch(`/api/statistics?year=${year}&month=${month}`)
+        .then((response) => response.json())
+        .then((result) => {
+            console.log(result.status);
+            data = result.message;
+            console.log(data);
+            $('#a4-black-total-sheets').text(data['a4BlackTotalSheets']);
+            $('#a4-black-total-pages').text(data['a4BlackTotalPages']);
+            $('#a4-black-amount').text('P ' + data['a4BlackAmount']);
+            $('#a4-color-total-sheets').text(data['a4ColorTotalSheets']);
+            $('#a4-color-total-pages').text(data['a4ColorTotalPages']);
+            $('#a4-color-amount').text('P ' + data['a4ColorAmount']);
+            $('#a3-black-total-sheets').text(data['a3BlackTotalSheets']);
+            $('#a3-black-total-pages').text(data['a3BlackTotalPages']);
+            $('#a3-black-amount').text('P ' + data['a3BlackAmount']);
+            $('#a3-color-total-sheets').text(data['a3ColorTotalSheets']);
+            $('#a3-color-total-pages').text(data['a3ColorTotalPages']);
+            $('#a3-color-amount').text('P ' + data['a3ColorAmount']);
+            var a4TotalSheets = data['a4BlackTotalSheets'] + data['a4ColorTotalSheets'];
+            var a4TotalPages = data['a4BlackTotalPages'] + data['a4ColorTotalPages'];
+            var a4TotalAmount = data['a4BlackAmount'] + data['a4ColorAmount'];
+            var a3TotalSheets = data['a3BlackTotalSheets'] + data['a3ColorTotalSheets'];
+            var a3TotalPages = data['a3BlackTotalPages'] + data['a3ColorTotalPages'];
+            var a3TotalAmount = data['a3BlackAmount'] + data['a3ColorAmount'];
+            $('#total-sheets').text(data['totalSheets'] + " ( " + a4TotalSheets + " + " + a3TotalSheets + " )");
+            $('#total-pages').text(data['totalPages'] + " ( " + a4TotalPages + " + " + a3TotalPages + " )");
+            $('#total-amount').text('P ' + data['totalAmount'] + " ( " + a4TotalAmount + " + " + a3TotalAmount + " )");
+        });
+    });
+    // api/statistics?year=2023&month=01
+</script>
+
+<style>
+    .statistics{
+        margin: 10px;
+    }
+    #dateRangeForm {
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        align-items: center;
+    }
+
+    #year, #month {
+        margin-right: 20px;
+    }
+
+    label{
+        width: auto;
+        display: inline-block;
+    }
+</style>
+
+<%- include("footer") -%>

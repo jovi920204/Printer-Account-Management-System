@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電腦教室 印表機使用系統</title>
+    <link rel="shortcut icon" href="/favicon/print-favicon.ico" />
+    <link rel="bookmark" href="/favicon/print-favicon.ico" />
+    <!-- bootstrap css CDN-->
+    <link rel="stylesheet" href="../bootstrap-5.2.3-dist/css/bootstrap.min.css">
+    <style>
+      /* bootstrap form-sign style */
+        .form-signin {
+          width: 80%;
+          max-width: 330px;
+          padding: 15px;
+          margin: auto;
+        }
+        
+        .form-signin .checkbox {
+          font-weight: 400;
+        }
+        
+        .form-signin .form-floating:focus-within {
+          z-index: 2;
+        }
+        
+        .form-signin input[type="email"] {
+          margin-bottom: -1px;
+          border-bottom-right-radius: 0;
+          border-bottom-left-radius: 0;
+        }
+        
+        .form-signin input[type="password"] {
+          margin-bottom: 10px;
+          border-top-left-radius: 0;
+          border-top-right-radius: 0;
+        }
+        .login-font-medium{
+          font-size: medium;
+        }
+        .login-font-small{
+          font-size: small;
+        }
+    </style>
+</head>
+<body class="text-center">
+  <div class="container">
+    <div class="left-box">
+      <h2 class="title mb-3 fw-normal">電腦教室</h1>
+      <h4 class="title2 mb-3 fw-normal">印表機使用系統</h1>
+      <img class="login-img" src="/icon/login-img.png" alt="">
+    </div>
+    <div class="right-box">
+      <main class="form-signin">
+        <form action="login" method="post">
+          <div class="form-floating" >
+            <input type="text" class="form-control border-vanish" id="floatingInput" name="studentID" placeholder="B12345678" required>
+            <label for="floatingInput" class="login-font-small">學號/帳號</label>
+          </div>
+          <div class="form-floating">
+            <input type="password" class="form-control" id="floatingPassword" name="password" placeholder="Password" required>
+            <label for="floatingPassword" class="login-font-small">密碼</label>
+          </div>
+          <div id="login-message">
+              <% if (messages.error) { %>
+                <%= messages.error %>
+              <% } %>
+          </div>
+          <button class="login-font-medium w-100 btn btn-lg btn-primary" type="submit">登入</button>
+        </form>
+      </main>
+    </div>
+  </div>
+        
+<script src="../bootstrap-5.2.3-dist/js/bootstrap.bundle.min.js"></script>
+<style>
+.border-vanish{
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: 0px;
+}
+#login-message{
+  height: 30px;
+  width: auto;
+}
+.title{
+  color: #FFF;
+  text-align: center;
+  font-family: Open Sans;
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px; /* 120% */
+  letter-spacing: 7.5px;
+}
+.title2{
+  color: #FFF;
+  font-family: Open Sans;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 36px;
+  letter-spacing: 5px;
+}
+.container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 685px;
+  height: 412px;
+  /* 置中 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+}
+.left-box{
+  width: 342.5px;
+  height: 412px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #222529;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+.right-box{
+  width: 342.5px;
+  height: 412px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+.login-img{
+  width: 80%;
+  height: 60%;
+}
+</style>
+</body>
+</html>

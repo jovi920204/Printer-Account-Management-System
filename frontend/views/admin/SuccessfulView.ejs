@@ -1,0 +1,26 @@
+<%- include("header") -%>
+<%- include("navbar") -%>
+<section class="success-page">
+
+    <h1>成功新增帳戶</h1>
+    
+    <button class="btn btn-primary" onclick="goToMain()">回到主畫面</button>
+    <style>
+        .success-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+    </style>
+</section>
+
+<%- include("footer") -%>
+
+<script>
+    function goToMain() {
+        window.location.href = "/admin/account";
+    }
+</script>
+  
